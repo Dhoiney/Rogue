@@ -2,6 +2,9 @@ import pygame as pg
 from pygame import *
 import random
 from classes.Platforms import Platform
+from classes.Camera import Camera
+from classes.Spike import Spike
+from classes.Monster import Monster
 
 #Window param
 WIN_W = 800
@@ -20,16 +23,34 @@ BLUE = "#0000ff"
 
 #Player stat
 MOVE_SPEED = 6
+EXTRA_MOVE_SPEED = 10
 WIDTH = 16
 HEIGHT = 16
 COLOR =  "#888888"
 
 
+#Platform param
+PLATFORM_WIDTH = 64
+PLATFORM_HEIGHT = 64
+
+
 entities = pg.sprite.Group() # all objects
 platforms = [] # platforms
+monsters = pg.sprite.Group()  # all moving objects
 
 
 RUN = True
+
+
+def camera_configure(camera, target_rect):
+    l, t, _, _ = target_rect
+    _, _, w, h = camera
+    l, t = -l + WIN_W / 2, -t + WIN_H / 2
+    l = min(0, l)
+    l = max(-(camera.width-WIN_W), l)
+    t = max(-(camera.height-WIN_H), t)
+    t = min(0, t)
+    return Rect(l, t, w, h)
 
 
 class Player(sprite.Sprite):
@@ -44,30 +65,72 @@ class Player(sprite.Sprite):
         self.rect = Rect(x, y, WIDTH, HEIGHT)
 
 
-    def update(self, left, right, up, down):
+    def update(self, left, right, up, down, fast, monsters):
         if left:
             self.xvel = -MOVE_SPEED
+            if fast:
+                self.xvel -= EXTRA_MOVE_SPEED
  
         if right:
             self.xvel = MOVE_SPEED
+            if fast:
+                self.xvel += EXTRA_MOVE_SPEED
 
         if up:
             self.yvel = -MOVE_SPEED
+            if fast:
+                self.yvel -= EXTRA_MOVE_SPEED
 
         if down:
             self.yvel = MOVE_SPEED
+            if fast:
+                self.yvel += EXTRA_MOVE_SPEED
+
          
         if not(left or right or up or down):
             self.xvel = 0
             self.yvel = 0
 
 
-        self.rect.x += self.xvel
         self.rect.y += self.yvel
+        self.collide(0, self.yvel, platforms)
+    
+        self.rect.x += self.xvel 
+        self.collide(self.xvel, 0, platforms)
 
 
-    def draw(self, screen):
-        screen.blit(self.image, (self.rect.x,self.rect.y))
+    def collide(self, xvel, yvel, platforms):
+        for p in platforms:
+            if sprite.collide_rect(self, p):
+
+                if xvel > 0:
+                    self.rect.right = p.rect.left
+
+                if xvel < 0:
+                    self.rect.left = p.rect.right
+
+                if yvel > 0:
+                    self.rect.bottom = p.rect.top
+
+                    self.yvel = 0
+
+                if yvel < 0:
+                    self.rect.top = p.rect.bottom
+                    self.yvel = 0
+
+
+                if isinstance(p, Spike) or isinstance(p, monsters.Monster):
+                    self.die()
+
+    
+    def die(self):
+        time.wait(500)
+        self.teleporting(self.startX, self.startY)
+
+    
+    def teleporting(self, goX, goY):
+        self.rect.x = goX
+        self.rect.y = goY
 
 
 hero = Player(74,74)
@@ -80,7 +143,7 @@ def level():
     y = random.randint(10, 20)
     x = random.randint(20, 30)
     trash = ""
-    params = [" ", "-"]
+    params = [" ", " "," ", " ", "-", "-", "-", "-","-", "-", "-", "-","-", "-", "-", "-", "*"]
     level.append("-" + "-" * x + "-")
     for elem in range(y):
         trash += "-"
@@ -92,14 +155,16 @@ def level():
         else:
             level.append("-" + " " * x + "-")
         trash = ""
+        
 
     level.append("-" + "-" * x + "-")
     return level
 
 
+
 lvl = level()
-level_len_y = (len(lvl) - 1) * 64
-level_len_x = (len(lvl[1]) - 1) * 64
+level_len_y = (len(lvl) - 1) * PLATFORM_HEIGHT
+level_len_x = (len(lvl[1]) - 1) * PLATFORM_WIDTH
 
 
 left = False
@@ -107,20 +172,23 @@ right = False
 up = False
 down = False
 
+   
+camera = Camera(camera_configure, level_len_x, level_len_y) 
+
+mn = Monster(190,200,2,3,150,15)
+entities.add(mn)
+platforms.append(mn)
+monsters.add(mn)
+
 
 while RUN:
     CLOCK.tick(60)
     for elem in pg.event.get():
         if elem.type == pg.QUIT:
             RUN = False
-            
+
 
     SCREEN.fill(pg.Color(BLUE))
-
-
-    PLATFORM_WIDTH = 64
-    PLATFORM_HEIGHT = 64
-    PLATFORM_COLOR = "#FFFFFF"
 
 
     x=y=0
@@ -130,15 +198,20 @@ while RUN:
                 pf = Platform(x,y)
                 entities.add(pf)
                 platforms.append(pf)
-
+            if col == "*":
+                bd = Spike(x,y)
+                entities.add(bd)
+                platforms.append(bd)
             x += 64
         y += 64
         x = 0
-
+        
 
     keys = pg.key.get_pressed()
+    fast = False
 
-
+    if keys[pg.K_LSHIFT]:
+        fast = True
     if keys[pg.K_a]:
         left = True
     elif keys[pg.K_d]:
@@ -154,8 +227,15 @@ while RUN:
         down = False
 
 
-    hero.update(left, right, up, down)
-    entities.draw(SCREEN)
+    hero.update(left, right, up, down, fast, monsters)
+    camera.update(hero)
+    monsters.update(platforms)
+    
+
+    for e in entities:
+        SCREEN.blit(e.image, camera.apply(e))
+
+
     pg.display.update()
 
 
