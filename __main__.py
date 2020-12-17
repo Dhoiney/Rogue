@@ -6,13 +6,12 @@ from classes.Camera import Camera
 from classes.Spike import Spike
 from classes.Monster import Monster
 
-#Window param
+#Window params
 WIN_W = 800
 WIN_H = 600
 DISPLAY = (WIN_W,WIN_H)
 CLOCK = pg.time.Clock()
 SCREEN = pg.display.set_mode(DISPLAY)
-BG = pg.Surface((WIN_W,WIN_H))
 GAME_NAME = pg.display.set_caption("Dhoiney(c)")
 
 
@@ -21,7 +20,7 @@ RED = "#ff0000"
 GREEN = "#00ff00"
 BLUE = "#0000ff"
 
-#Player stat
+#Player stats
 MOVE_SPEED = 6
 EXTRA_MOVE_SPEED = 10
 WIDTH = 16
@@ -41,7 +40,7 @@ monsters = pg.sprite.Group()  # all moving objects
 
 RUN = True
 
-
+# задаем параметры камеры
 def camera_configure(camera, target_rect):
     l, t, _, _ = target_rect
     _, _, w, h = camera
@@ -53,6 +52,7 @@ def camera_configure(camera, target_rect):
     return Rect(l, t, w, h)
 
 
+# Класс для ГГ
 class Player(sprite.Sprite):
     def __init__(self, x, y):
         sprite.Sprite.__init__(self)
@@ -65,6 +65,7 @@ class Player(sprite.Sprite):
         self.rect = Rect(x, y, WIDTH, HEIGHT)
 
 
+# Обработка передвижений ГГ
     def update(self, left, right, up, down, fast, monsters):
         if left:
             self.xvel = -MOVE_SPEED
@@ -99,6 +100,7 @@ class Player(sprite.Sprite):
         self.collide(self.xvel, 0, platforms)
 
 
+# Обработка столкновений ГГ
     def collide(self, xvel, yvel, platforms):
         for p in platforms:
             if sprite.collide_rect(self, p):
@@ -137,6 +139,7 @@ hero = Player(74,74)
 entities.add(hero)
 
 
+# создаем список из набора символов params для генерации уровня
 def level():
     level = []
 
@@ -161,18 +164,20 @@ def level():
     return level
 
 
-
+# Узнаем длинну и высоту уровня
 lvl = level()
 level_len_y = (len(lvl) - 1) * PLATFORM_HEIGHT
 level_len_x = (len(lvl[1]) - 1) * PLATFORM_WIDTH
 
 
+# Параметры передвижения по умолчанию
 left = False
 right = False
 up = False
 down = False
 
 
+# Перебираем список lvl и создаем объекты по символам
 x=y=0
 for row in lvl:
     for col in row: 
@@ -185,7 +190,7 @@ for row in lvl:
             entities.add(bd)
             platforms.append(bd)
         if col == "e":
-            mn = Monster(x,y,2,3,random.randint(150,300),random.randint(5,15))
+            mn = Monster(x, y, 2, 2,random.randint(150,300), random.randint(5,15))
             entities.add(mn)
             platforms.append(mn)
             monsters.add(mn)
@@ -194,24 +199,30 @@ for row in lvl:
     x = 0
 y = 0
 
-   
+
+# Создаем объект класса Camera
 camera = Camera(camera_configure, level_len_x, level_len_y) 
 
 
+# Основной игровой цикл
 while RUN:
     CLOCK.tick(60)
+    # Выход из игры
     for elem in pg.event.get():
         if elem.type == pg.QUIT:
             RUN = False
 
-
+# Заливка фона
     SCREEN.fill(pg.Color(BLUE))
 
-
+# Перехват нажатий клавиш
     keys = pg.key.get_pressed()
+
+# Бег.По умолчанию False
     fast = False
 
 
+# Обработка нажатий на клавиши
     if keys[pg.K_ESCAPE]:
         RUN = False
 
@@ -232,7 +243,7 @@ while RUN:
         up = False
         down = False
 
-
+# Обновление объектов
     hero.update(left, right, up, down, fast, monsters)
     camera.update(hero)
     monsters.update(platforms)
@@ -242,5 +253,5 @@ while RUN:
         SCREEN.blit(e.image, camera.apply(e))
 
 
-
+# обновление экрана
     pg.display.update()

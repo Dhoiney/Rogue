@@ -19,6 +19,7 @@ class Monster(sprite.Sprite):
         self.yvel = up
 
 
+# Обработка поведения врагов
     def update(self, platforms):
 
         self.image.fill(Color(MONSTER_COLOR))
@@ -34,6 +35,8 @@ class Monster(sprite.Sprite):
         if (abs(self.startY - self.rect.y) > self.maxLengthUp):
             self.yvel = -self.yvel
 
+
+# Обработка столкновений с другими объектами
     def collide(self, platforms):
         for p in platforms:
             if sprite.collide_rect(self, p) and self != p:
