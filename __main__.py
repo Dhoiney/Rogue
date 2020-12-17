@@ -1,6 +1,7 @@
 import pygame as pg
 from pygame import *
 import random
+import pyganim
 from classes.Platforms import Platform
 from classes.Camera import Camera
 from classes.Spike import Spike
@@ -52,6 +53,63 @@ def camera_configure(camera, target_rect):
     return Rect(l, t, w, h)
 
 
+# Анимация ГГ
+anim_delay = 0,15
+player_stay = [pg.image.load('res/Hero/stay1.xcf'),
+            pg.image.load('res/Hero/stay2.xcf'),
+            pg.image.load('res/Hero/stay3.xcf'),
+            pg.image.load('res/Hero/stay4.xcf')]
+
+
+run_left = [pg.image.load('res/Hero/runleft1.xcf'),
+            pg.image.load('res/Hero/runleft2.xcf'),
+            pg.image.load('res/Hero/runleft3.xcf'),
+            pg.image.load('res/Hero/runleft4.xcf'),
+            pg.image.load('res/Hero/runleft5.xcf'),
+            pg.image.load('res/Hero/runleft6.xcf'),
+            pg.image.load('res/Hero/runleft7.xcf'),
+            pg.image.load('res/Hero/runleft8.xcf'),
+            pg.image.load('res/Hero/runleft9.xcf'),
+            pg.image.load('res/Hero/runleft0.xcf')]
+
+
+run_right = [pg.image.load('res/Hero/runright1.xcf'),
+            pg.image.load('res/Hero/runright2.xcf'),
+            pg.image.load('res/Hero/runright3.xcf'),
+            pg.image.load('res/Hero/runright4.xcf'),
+            pg.image.load('res/Hero/runright5.xcf'),
+            pg.image.load('res/Hero/runright6.xcf'),
+            pg.image.load('res/Hero/runright7.xcf'),
+            pg.image.load('res/Hero/runright8.xcf'),
+            pg.image.load('res/Hero/runright9.xcf'),
+            pg.image.load('res/Hero/runright0.xcf'),]
+
+
+run_up = [pg.image.load('res/Hero/runup.xcf'),
+            pg.image.load('res/Hero/runup1.xcf'),
+            pg.image.load('res/Hero/runup2.xcf'),
+            pg.image.load('res/Hero/runup3.xcf'),
+            pg.image.load('res/Hero/runup4.xcf'),
+            pg.image.load('res/Hero/runup5.xcf'),
+            pg.image.load('res/Hero/runup6.xcf'),
+            pg.image.load('res/Hero/runup7.xcf'),
+            pg.image.load('res/Hero/runup8.xcf'),
+            pg.image.load('res/Hero/runup9.xcf'),
+            pg.image.load('res/Hero/runup0.xcf')]
+
+
+run_down = [pg.image.load('res/Hero/rundown1.xcf'),
+            pg.image.load('res/Hero/rundown2.xcf'),
+            pg.image.load('res/Hero/rundown3.xcf'),
+            pg.image.load('res/Hero/rundown4.xcf'),
+            pg.image.load('res/Hero/rundown5.xcf'),
+            pg.image.load('res/Hero/rundown6.xcf'),
+            pg.image.load('res/Hero/rundown7.xcf'),
+            pg.image.load('res/Hero/rundown8.xcf'),
+            pg.image.load('res/Hero/rundown9.xcf'),
+            pg.image.load('res/Hero/rundown0.xcf')]
+
+
 # Класс для ГГ
 class Player(sprite.Sprite):
     def __init__(self, x, y):
@@ -69,21 +127,25 @@ class Player(sprite.Sprite):
     def update(self, left, right, up, down, fast, monsters):
         if left:
             self.xvel = -MOVE_SPEED
+
             if fast:
                 self.xvel -= EXTRA_MOVE_SPEED
  
         if right:
             self.xvel = MOVE_SPEED
+
             if fast:
                 self.xvel += EXTRA_MOVE_SPEED
 
         if up:
             self.yvel = -MOVE_SPEED
+
             if fast:
                 self.yvel -= EXTRA_MOVE_SPEED
 
         if down:
             self.yvel = MOVE_SPEED
+
             if fast:
                 self.yvel += EXTRA_MOVE_SPEED
 
@@ -91,6 +153,7 @@ class Player(sprite.Sprite):
         if not(left or right or up or down):
             self.xvel = 0
             self.yvel = 0
+
 
 
         self.rect.y += self.yvel
@@ -135,10 +198,6 @@ class Player(sprite.Sprite):
         self.rect.y = goY
 
 
-hero = Player(74,74)
-entities.add(hero)
-
-
 # создаем список из набора символов params для генерации уровня
 def level():
     level = []
@@ -146,7 +205,7 @@ def level():
     y = random.randint(10, 20)
     x = random.randint(20, 30)
     trash = ""
-    params = [" ", " "," ", " ", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "*", "e"]
+    params = [" ", " ", " ", " ", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "*", "*", "e"]
     level.append("-" + "-" * x + "-")
     for elem in range(y):
         trash += "-"
@@ -156,7 +215,7 @@ def level():
         if elem % 2:
             level.append(trash)
         else:
-            level.append("-" + " " * x + "-")
+            level.append("-" + " " * x + ("-"))
         trash = ""
         
 
@@ -168,6 +227,11 @@ def level():
 lvl = level()
 level_len_y = (len(lvl) - 1) * PLATFORM_HEIGHT
 level_len_x = (len(lvl[1]) - 1) * PLATFORM_WIDTH
+
+
+# Создаем ГГ,добавляем ко всем объектам
+hero = Player(random.randint(64 ,level_len_x), 196)
+entities.add(hero)
 
 
 # Параметры передвижения по умолчанию
@@ -182,15 +246,15 @@ x=y=0
 for row in lvl:
     for col in row: 
         if col == "-":
-            pf = Platform(x,y)
+            pf = Platform(x, y)
             entities.add(pf)
             platforms.append(pf)
         if col == "*":
-            bd = Spike(x,y)
+            bd = Spike(x, y)
             entities.add(bd)
             platforms.append(bd)
         if col == "e":
-            mn = Monster(x, y, 2, 2,random.randint(150,300), random.randint(5,15))
+            mn = Monster(x, y, 2, 0,random.randint(150,300), random.randint(5,15))
             entities.add(mn)
             platforms.append(mn)
             monsters.add(mn)
