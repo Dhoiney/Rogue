@@ -172,6 +172,28 @@ right = False
 up = False
 down = False
 
+
+x=y=0
+for row in lvl:
+    for col in row: 
+        if col == "-":
+            pf = Platform(x,y)
+            entities.add(pf)
+            platforms.append(pf)
+        if col == "*":
+            bd = Spike(x,y)
+            entities.add(bd)
+            platforms.append(bd)
+        if col == "e":
+            mn = Monster(x,y,2,3,random.randint(150,300),random.randint(5,15))
+            entities.add(mn)
+            platforms.append(mn)
+            monsters.add(mn)
+        x += 64
+    y += 64
+    x = 0
+y = 0
+
    
 camera = Camera(camera_configure, level_len_x, level_len_y) 
 
@@ -185,27 +207,6 @@ while RUN:
 
     SCREEN.fill(pg.Color(BLUE))
 
-
-    x=y=0
-    for row in lvl:
-        for col in row: 
-            if col == "-":
-                pf = Platform(x,y)
-                entities.add(pf)
-                platforms.append(pf)
-            if col == "*":
-                bd = Spike(x,y)
-                entities.add(bd)
-                platforms.append(bd)
-            if col == "e":
-                mn = Monster(x,y,2,3,random.randint(150,300),random.randint(5,15))
-                entities.add(mn)
-                platforms.append(mn)
-                monsters.add(mn)
-            x += 64
-        y += 64
-        x = 0
-        
 
     keys = pg.key.get_pressed()
     fast = False
@@ -239,6 +240,7 @@ while RUN:
 
     for e in entities:
         SCREEN.blit(e.image, camera.apply(e))
+
 
 
     pg.display.update()
