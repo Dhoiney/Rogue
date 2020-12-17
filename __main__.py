@@ -39,6 +39,12 @@ platforms = [] # platforms
 monsters = pg.sprite.Group()  # all moving objects
 
 
+mn = Monster(190,200,2,3,150,15)
+entities.add(mn)
+platforms.append(mn)
+monsters.add(mn)
+
+
 RUN = True
 
 
@@ -119,7 +125,7 @@ class Player(sprite.Sprite):
                     self.yvel = 0
 
 
-                if isinstance(p, Spike) or isinstance(p, monsters.Monster):
+                if isinstance(p, Spike) or isinstance(p, Monster):
                     self.die()
 
     
@@ -175,11 +181,6 @@ down = False
    
 camera = Camera(camera_configure, level_len_x, level_len_y) 
 
-mn = Monster(190,200,2,3,150,15)
-entities.add(mn)
-platforms.append(mn)
-monsters.add(mn)
-
 
 while RUN:
     CLOCK.tick(60)
@@ -209,6 +210,11 @@ while RUN:
 
     keys = pg.key.get_pressed()
     fast = False
+
+
+    if keys[pg.K_ESCAPE]:
+        RUN = False
+
 
     if keys[pg.K_LSHIFT]:
         fast = True
