@@ -39,12 +39,6 @@ platforms = [] # platforms
 monsters = pg.sprite.Group()  # all moving objects
 
 
-mn = Monster(190,200,2,3,150,15)
-entities.add(mn)
-platforms.append(mn)
-monsters.add(mn)
-
-
 RUN = True
 
 
@@ -149,7 +143,7 @@ def level():
     y = random.randint(10, 20)
     x = random.randint(20, 30)
     trash = ""
-    params = [" ", " "," ", " ", "-", "-", "-", "-","-", "-", "-", "-","-", "-", "-", "-", "*"]
+    params = [" ", " "," ", " ", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "*", "e"]
     level.append("-" + "-" * x + "-")
     for elem in range(y):
         trash += "-"
@@ -203,6 +197,11 @@ while RUN:
                 bd = Spike(x,y)
                 entities.add(bd)
                 platforms.append(bd)
+            if col == "e":
+                mn = Monster(x,y,2,3,random.randint(150,300),random.randint(5,15))
+                entities.add(mn)
+                platforms.append(mn)
+                monsters.add(mn)
             x += 64
         y += 64
         x = 0
@@ -243,8 +242,3 @@ while RUN:
 
 
     pg.display.update()
-
-
-
-if __name__ == "__main__":
-    pass
