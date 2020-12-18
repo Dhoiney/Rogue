@@ -206,7 +206,9 @@ def level():
     x = random.randint(20, 30)
     trash = ""
     params = [" ", " ", " ", " ", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "*", "*", "e"]
+    
     level.append("-" + "-" * x + "-")
+    level.append("-" + "-" * ( x // 2 ) + "g" + "-" * (x // 2))
     for elem in range(y):
         trash += "-"
         for item in range(x):
@@ -215,11 +217,12 @@ def level():
         if elem % 2:
             level.append(trash)
         else:
-            level.append("-" + " " * x + ("-"))
+            level.append("-" + " " * x + "-")
         trash = ""
-        
 
+    level.append("-" + "-" * (x // 2) + "q" + "-" * (x // 2))
     level.append("-" + "-" * x + "-")
+
     return level
 
 
@@ -227,11 +230,6 @@ def level():
 lvl = level()
 level_len_y = (len(lvl) - 1) * PLATFORM_HEIGHT
 level_len_x = (len(lvl[1]) - 1) * PLATFORM_WIDTH
-
-
-# Создаем ГГ,добавляем ко всем объектам
-hero = Player(random.randint(64 ,level_len_x), 196)
-entities.add(hero)
 
 
 # Параметры передвижения по умолчанию
@@ -258,6 +256,9 @@ for row in lvl:
             entities.add(mn)
             platforms.append(mn)
             monsters.add(mn)
+        if col == "g":
+            hero = Player(x, y)
+            entities.add(hero)
         x += 64
     y += 64
     x = 0
@@ -265,7 +266,7 @@ y = 0
 
 
 # Создаем объект класса Camera
-camera = Camera(camera_configure, level_len_x, level_len_y) 
+camera = Camera(camera_configure, level_len_x + 64, level_len_y + 64) 
 
 
 # Основной игровой цикл
@@ -275,6 +276,7 @@ while RUN:
     for elem in pg.event.get():
         if elem.type == pg.QUIT:
             RUN = False
+
 
 # Заливка фона
     SCREEN.fill(pg.Color(BLUE))
