@@ -1,11 +1,12 @@
 from pygame import *
 import pygame as pg
+import random
 from classes.Camera import Camera
 from classes.Spike import Spike
 from classes.Platforms import Platform
 from classes.Monster import Monster
 from classes.quit import Quit
-import random
+
 
 #Window params
 WIN_W = 800
@@ -25,11 +26,13 @@ MOVE_SPEED = 6
 EXTRA_MOVE_SPEED = 10
 WIDTH = 16
 HEIGHT = 16
-COLOR =  "#888888"
+COLOR =  "#ff8301"
 
 #Platform param
 PLATFORM_WIDTH = 64
 PLATFORM_HEIGHT = 64
+
+bg_platform = pg.image.load("res/floor_tile.xcf")
 
 
 def main():
@@ -158,8 +161,9 @@ def main():
     level_len_y = (len(lvl)) * PLATFORM_HEIGHT
     level_len_x = (len(lvl[1])) * PLATFORM_WIDTH
 
+
     # Создаем ГГ,добавляем ко всем объектам
-    hero = Player(random.randint(64, level_len_x -64), 196)
+    hero = Player(random.randint(64, level_len_x -74), 196)
     entities.add(hero)
 
     # Параметры передвижения по умолчанию
@@ -167,6 +171,7 @@ def main():
     right = False
     up = False
     down = False
+
 
     # Перебираем список lvl и создаем объекты по символам
     x = y = 0
@@ -181,7 +186,7 @@ def main():
                 entities.add(bd)
                 platforms.append(bd)
             if col == "e":
-                mn = Monster(x, y, 2, 0, random.randint(150, 300), random.randint(5, 15))
+                mn = Monster(x, y, 4, 1, random.randint(150, 300), random.randint(5, 15))
                 entities.add(mn)
                 platforms.append(mn)
                 monsters.add(mn)
@@ -208,8 +213,17 @@ def main():
         for elem in pg.event.get():
             if elem.type == pg.QUIT:
                 run = False
-        # Заливка фона
-        bg = SCREEN.fill(pg.Color(BLUE))
+
+
+        x_bg = y_bg = 0
+        for i in range(level_len_y):
+            a = SCREEN.blit(bg_platform, (x_bg, y_bg))
+            x_bg += 64
+            if x_bg >= level_len_x:
+                x_bg = 0
+                y_bg += 64
+                if y_bg >= level_len_y and x_bg >= level_len_x:
+                    break
 
         # Перехват нажатий клавиш
         keys = pg.key.get_pressed()

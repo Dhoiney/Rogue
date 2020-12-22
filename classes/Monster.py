@@ -1,8 +1,8 @@
 from pygame import *
 
 
-MONSTER_WIDTH = 32
-MONSTER_HEIGHT = 32
+MONSTER_WIDTH = 25
+MONSTER_HEIGHT = 25
 MONSTER_COLOR = "#ffff00"
 
 class Monster(sprite.Sprite):
